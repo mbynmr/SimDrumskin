@@ -17,7 +17,7 @@ def basic():
     plt.show()
 
 
-def slice(t_end):
+def slice(t_end, dims):
     data = np.loadtxt('outputs/output.txt')
     slice = np.loadtxt('outputs/outputbig.txt')
     i = data[:, 0]  # iteration number
@@ -28,7 +28,7 @@ def slice(t_end):
     figure, ax = plt.subplots()
     plt.ylabel('vertical displacement')
     plt.xlabel('horizontal position')
-    line1, = ax.plot(np.linspace(start=-50, stop=50, num=slice.shape[1]), slice[0, :])
+    line1, = ax.plot(np.linspace(start=-dims[1] / 2, stop=dims[1] / 2, num=slice.shape[1]), slice[0, :])
     # ax.set_ylim(bottom=min(slice), top=max(slice))
     plt.ylim([np.amin(slice), np.amax(slice)])
     # plt.show
@@ -36,10 +36,10 @@ def slice(t_end):
     for i, frame in enumerate(slice):
         # line1.set_xdata(x)
         line1.set_ydata(frame)
-        plt.title(f"t = {i * t_end / slice.shape[0]:.1f}s out of {t_end:.6g}s")
+        plt.title(f"t = {i * t_end / slice.shape[0]:.2e}s out of {t_end:.2e}s")
         figure.canvas.draw()
         figure.canvas.flush_events()
-        sleep = i * t_end / slice.shape[0] - (time.time() - t_start)  # how long to hold this frame for
+        sleep = i * (1 / 30) - (time.time() - t_start)  # how long to hold this frame for to get 30fps
         if sleep > 0:
             time.sleep(sleep)
     plt.close()
