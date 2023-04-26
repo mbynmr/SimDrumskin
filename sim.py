@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from scipy.signal import convolve2d
 
 from shape import retrieve_membrane_shape
 
@@ -48,11 +49,28 @@ def sim(dt, t_end, dims):
         for i, t in tqdm(enumerate(times), total=len(times)):
             M[xs, ys, 2] = support[i]
 
+            kernel_1 = np.array([[0, c2, 0], [c2, c0, c2], [0, c2, 0]])
+            kernel_0 = np.array([[0, 0, 0], [0, -c1, 0], [0, 0, 0]])  # useless?
+
             # use finite difference formula to calculate new values of displacement of membrane
             if not damping:
-                M[xm, ym, 2] = c0 * M[xm, ym, 1] - c1 * M[xm, ym, 0] + c2 * (
-                        M[xm + 1, ym, 1] + M[xm, ym + 1, 1] + M[xm - 1, ym, 1] + M[xm, ym - 1, 1]
-                )  # todo place for a convolution: math with neighbouring coordinates is it's bread and butter
+                # no convolution
+                # M[xm, ym, 2] = c0 * M[xm, ym, 1] - c1 * M[xm, ym, 0] + c2 * (
+                #         M[xm + 1, ym, 1] + M[xm, ym + 1, 1] + M[xm - 1, ym, 1] + M[xm, ym - 1, 1]
+                # )
+
+                # efficient use of convolution
+                M[xm, ym, 2] = convolve2d(M[..., 1], kernel_1, mode='same').reshape(M.shape[0:2])[xm, ym] -\
+                               c1 * M[xm, ym, 0]
+                # manually (not working?)
+                # M_1F = np.fft.fft2(M[..., 1])
+                # M_1F[:kernel_1.shape[0], :kernel_1.shape[1]] = kernel_1 + M_1F[:kernel_1.shape[0], :kernel_1.shape[1]]
+                # M[xm, ym, 2] = np.abs(np.fft.ifft2(M_1F)).reshape(M.shape[0:2])[xm, ym] - c1 * M[xm, ym, 0]
+
+                # full convolution
+                # M[xm, ym, 2] = (convolve2d(M[..., 1], kernel_1, mode='same') +
+                #                 convolve2d(M[..., 0], kernel_0, mode='same')).reshape(M.shape[0:2])[xm, ym]
+
             else:
                 M[xm, ym, 2] = 2 * M[xm, ym, 1] - M[xm, ym, 0] + k0 * (
                         M[xm + 1, ym, 1] + M[xm, ym + 1, 1] + M[xm - 1, ym, 1] + M[xm, ym - 1, 1] - 4 * M[xm, ym, 1]) -\
