@@ -17,18 +17,18 @@ def basic():
     plt.show()
 
 
-def slice(t_end, dims):
-    data = np.loadtxt('outputs/output.txt')
+def slice_viewer(t_end, element_width, total_width):
+    # data = np.loadtxt('outputs/output.txt')
     slice = np.loadtxt('outputs/outputbig.txt')
-    i = data[:, 0]  # iteration number
-    t = data[:, 1]  # time
-    a = data[:, 2]  # rms amplitude of non-support
-    s = data[:, 3]  # support
+    # i = data[:, 0]  # iteration number
+    # t = data[:, 1]  # time
+    # a = data[:, 2]  # rms amplitude of non-support
+    # s = data[:, 3]  # support
     plt.ion()
     figure, ax = plt.subplots()
     plt.ylabel('vertical displacement')
     plt.xlabel('horizontal position')
-    line1, = ax.plot(np.linspace(start=-dims[1] / 2, stop=dims[1] / 2, num=slice.shape[1]), slice[0, :])
+    line1, = ax.plot(np.linspace(start=-total_width / 2, stop=total_width / 2, num=slice.shape[1]), slice[0, :])
     # ax.set_ylim(bottom=min(slice), top=max(slice))
     plt.ylim([np.amin(slice), np.amax(slice)])
     # plt.show
