@@ -36,6 +36,7 @@ def slice_viewer(t_end, element_width, total_width):
     for i, frame in enumerate(slice):
         # line1.set_xdata(x)
         line1.set_ydata(frame)
+        # plt.ylim([np.amin(frame), np.amax(frame)])
         plt.title(f"t = {i * t_end / slice.shape[0]:.2e}s out of {t_end:.2e}s")
         figure.canvas.draw()
         figure.canvas.flush_events()
